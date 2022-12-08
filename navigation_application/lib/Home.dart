@@ -6,6 +6,10 @@ import 'package:navigation_application/Favorites.dart';
 import 'package:navigation_application/Locations.dart';
 import 'package:navigation_application/Welcome.dart';
 import 'package:navigation_application/login.dart';
+import 'package:flutter/material.dart';
+import 'package:sensors_plus/sensors_plus.dart';
+import 'dart:async';
+import 'package:shake/shake.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -24,9 +28,50 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  @override
+  void initState() {
+    super.initState();
+    ShakeDetector detector = ShakeDetector.autoStart(
+      onPhoneShake: () {
+        ScaffoldMessenger.of(context).showMaterialBanner(
+          MaterialBanner(
+            content: const Text("WARNING: FALL DETECTED!"),
+            contentTextStyle: const TextStyle(),
+            backgroundColor: Colors.black,
+            leading: Icon(Icons.warning),
+            actions: [
+              ElevatedButton(
+                  child: Text("Call EMS"),
+                  style: ElevatedButton.styleFrom(primary: Colors.red),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Emergency()),
+                    );
+                  }),
+              ElevatedButton(
+                child: Text("I'm okay."),
+                onPressed: () {
+                  ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+                },
+              )
+            ],
+          ),
+        );
+      },
+      shakeThresholdGravity: 2.7,
+      shakeSlopTimeMS: 500,
+      shakeCountResetTime: 3000,
+    );
+  }
+
   IconData icondata = Icons.volume_up;
   @override
   Widget build(BuildContext context) {
+    //   onPhoneShake: () {
+    // );
     final ButtonStyle style =
         ElevatedButton.styleFrom(minimumSize: const Size(350, 80));
     // This method is rerun every time setState is called, for instance as done
